@@ -3,200 +3,344 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>divi — apps</title>
+  <meta name="description" content="Divi Clock — a cute, free clock widget for Android. No ads, fully customizable fonts, colors and timezones.">
+  <title>Divi Clock ✦ cute clock widget</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
+
+    :root {
+      --bg:       #0d0b1e;
+      --pink:     #ff79c6;
+      --mint:     #a8e063;
+      --lavender: #bd93f9;
+      --gold:     #f1d76a;
+      --text:     #f4f0ff;
+      --muted:    rgba(244,240,255,0.42);
+      --card-bg:  rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.09);
+    }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      background: #0a0a0f;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      overflow-x: hidden;
     }
 
-    header {
-      padding: 48px 32px 24px;
+    /* ── Ambient background ─────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 90% 55% at 15% 10%,  rgba(189,147,249,.14) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 50% at 85% 85%,  rgba(255,121,198,.12) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 50% 50%,  rgba(168,224,99, .05) 0%, transparent 70%);
+    }
+
+    /* ── Floating sparkles ──────────────────────────────────────────────── */
+    .sparkles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .sp {
+      position: absolute;
+      color: var(--gold);
+      opacity: 0;
+      animation: twinkle var(--d, 4s) var(--delay, 0s) infinite ease-in-out;
+      font-size: var(--sz, 13px);
+      user-select: none;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0;   transform: scale(.5) rotate(0deg); }
+      50%       { opacity: .55; transform: scale(1)  rotate(18deg); }
+    }
+
+    /* ── Main layout ────────────────────────────────────────────────────── */
+    main {
+      position: relative; z-index: 1;
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 52px 22px 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
     }
 
-    header h1 {
-      font-size: 1.1rem;
-      font-weight: 400;
-      letter-spacing: 0.35em;
+    /* ── Site label ─────────────────────────────────────────────────────── */
+    .site-label {
+      font-size: .7rem;
+      letter-spacing: .32em;
       text-transform: uppercase;
-      color: #555;
+      color: var(--muted);
+      margin-bottom: 44px;
     }
 
-    .grid {
-      flex: 1;
+    /* ── App icon ───────────────────────────────────────────────────────── */
+    .app-icon {
+      width: 108px; height: 108px;
+      border-radius: 26px;
+      box-shadow: 0 8px 48px rgba(168,224,99,.22), 0 2px 16px rgba(0,0,0,.55);
+      margin-bottom: 22px;
+      animation: float 5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+
+    /* ── Title block ────────────────────────────────────────────────────── */
+    h1 {
+      font-size: clamp(2rem, 7vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: .01em;
+      background: linear-gradient(130deg, var(--mint) 0%, var(--lavender) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+    .is-back {
+      font-size: .88rem;
+      color: var(--pink);
+      font-style: italic;
+      margin-top: 5px;
+      letter-spacing: .04em;
+    }
+    .app-desc {
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.7;
+      margin-top: 18px;
+      max-width: 400px;
+    }
+    .app-desc strong { color: var(--text); font-weight: 600; }
+
+    /* ── Badges ─────────────────────────────────────────────────────────── */
+    .badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 28px;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 32px;
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .app-card {
-      -webkit-tap-highlight-color: transparent;
-      outline: none;
-      -webkit-touch-callout: none;
-      user-select: none;
-      background: #13131a;
-      border: 1px solid #1e1e2e;
-      border-radius: 20px;
-      width: 260px;
-      padding: 28px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .app-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      background: radial-gradient(ellipse at 50% 0%, rgba(120, 80, 255, 0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .app-card:hover {
-      transform: translateY(-4px);
-      border-color: #3a2a6a;
-      box-shadow: 0 12px 40px rgba(100, 60, 220, 0.18);
-    }
-
-    .app-card:active,
-    .app-card:focus,
-    .app-card:focus-visible,
-    .app-card:focus-within {
-      outline: none;
-    }
-
-    .app-icon {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .app-name {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #f0f0f0;
-      letter-spacing: 0.02em;
-    }
-
-    .app-desc {
-      font-size: 0.82rem;
-      color: #777;
-      text-align: center;
-      line-height: 1.55;
-    }
-
-    .badge {
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
       gap: 8px;
-      background: #1c1c2e;
-      border: 1px solid #2a2a40;
+      justify-content: center;
+      margin-top: 22px;
+    }
+    .badge {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 50px;
-      padding: 7px 14px;
-      font-size: 0.75rem;
-      color: #aaa;
-      letter-spacing: 0.04em;
-      transition: background 0.2s, color 0.2s;
+      padding: 6px 14px;
+      font-size: .76rem;
+      letter-spacing: .04em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .badge.green  { border-color: rgba(168,224,99,.38); color: var(--mint); }
+    .badge.pink   { border-color: rgba(255,121,198,.38); color: var(--pink); }
+    .badge.purple { border-color: rgba(189,147,249,.38); color: var(--lavender); }
+    .badge.gold   { border-color: rgba(241,215,106,.38); color: var(--gold); }
+
+    /* ── Gallery ────────────────────────────────────────────────────────── */
+    .gallery-label {
+      font-size: .68rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 52px;
+      margin-bottom: 20px;
     }
 
-    .app-card:hover .badge {
-      background: #28284a;
-      color: #ccc;
+    /* Wrapper bleeds edge-to-edge on mobile */
+    .gallery-wrap {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
     }
+    .gallery {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      overflow-y: visible;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 28px 24px;
+      scrollbar-width: none;
+      align-items: flex-start;
+    }
+    .gallery::-webkit-scrollbar { display: none; }
 
-    .badge svg {
+    /* First / last phantom padding to show partial next card */
+    .gallery::before,
+    .gallery::after {
+      content: '';
       flex-shrink: 0;
+      width: 4px; /* visual breathing room */
     }
 
+    .phone {
+      flex-shrink: 0;
+      width: 148px;
+      border-radius: 26px;
+      border: 2.5px solid rgba(255,255,255,.13);
+      overflow: hidden;
+      background: #000;
+      scroll-snap-align: center;
+      box-shadow: 0 16px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+      transition: transform .3s ease, box-shadow .3s ease;
+      position: relative;
+    }
+    .phone:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 28px 64px rgba(189,147,249,.22), 0 0 0 1px rgba(255,255,255,.1);
+    }
+    /* subtle notch */
+    .phone::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 44px; height: 10px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+      z-index: 2;
+    }
+    .phone img {
+      width: 100%;
+      display: block;
+    }
+
+    .scroll-hint {
+      font-size: .68rem;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: .06em;
+    }
+
+    /* Desktop: show all 4 without scroll */
+    @media (min-width: 620px) {
+      .gallery-wrap { width: 100%; margin-left: 0; }
+      .gallery {
+        overflow-x: visible;
+        flex-wrap: nowrap;
+        justify-content: center;
+        padding: 16px 0 24px;
+        scroll-snap-type: none;
+      }
+      .gallery::before, .gallery::after { display: none; }
+      .phone { width: 140px; }
+      .scroll-hint { display: none; }
+    }
+    @media (min-width: 720px) {
+      .phone { width: 152px; }
+    }
+
+    /* ── CTA button ─────────────────────────────────────────────────────── */
+    .cta-wrap { margin-top: 44px; }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(168,224,99,.13), rgba(189,147,249,.13));
+      border: 1.5px solid rgba(168,224,99,.4);
+      border-radius: 50px;
+      padding: 15px 30px;
+      font-size: .92rem;
+      font-weight: 700;
+      color: var(--mint);
+      text-decoration: none;
+      letter-spacing: .04em;
+      transition: all .25s ease;
+      box-shadow: 0 4px 28px rgba(168,224,99,.1);
+    }
+    .cta:hover {
+      background: linear-gradient(135deg, rgba(168,224,99,.22), rgba(189,147,249,.22));
+      border-color: rgba(168,224,99,.7);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(168,224,99,.2);
+    }
+    .cta:active { transform: translateY(0); }
+
+    /* ── Footer ─────────────────────────────────────────────────────────── */
     footer {
+      position: relative; z-index: 1;
       text-align: center;
-      padding: 16px;
-      font-size: 0.72rem;
-      color: #333;
-      letter-spacing: 0.08em;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(to bottom, transparent, #0a0a0f 60%);
-      pointer-events: none;
+      padding: 20px 16px 28px;
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .08em;
     }
+    footer a { color: rgba(255,121,198,.6); text-decoration: none; }
+    footer a:hover { color: var(--pink); }
 
-    @media (max-height: 700px), (max-width: 400px) {
-      header {
-        padding: 24px 32px 12px;
-      }
-
-      .grid {
-        padding: 16px;
-        gap: 16px;
-      }
-
-      .app-card {
-        padding: 20px 18px 18px;
-        gap: 10px;
-      }
-
-      .app-icon {
-        width: 72px;
-        height: 72px;
-      }
-
-      footer {
-        padding: 16px;
-      }
+    /* ── Small mobile extra tweaks ──────────────────────────────────────── */
+    @media (max-width: 380px) {
+      main { padding: 38px 18px 90px; }
+      .app-icon { width: 90px; height: 90px; }
+      .phone { width: 132px; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>divi</h1>
-  </header>
+  <div class="sparkles" aria-hidden="true">
+    <span class="sp" style="top:6%;left:8%;--d:4.2s;--delay:0s;--sz:14px">✦</span>
+    <span class="sp" style="top:12%;left:87%;--d:5s;--delay:.9s;--sz:11px">✧</span>
+    <span class="sp" style="top:32%;left:4%;--d:3.8s;--delay:1.7s;--sz:10px">✦</span>
+    <span class="sp" style="top:55%;left:93%;--d:4.6s;--delay:.4s;--sz:13px">✧</span>
+    <span class="sp" style="top:72%;left:7%;--d:5.2s;--delay:2.2s;--sz:11px">✦</span>
+    <span class="sp" style="top:82%;left:80%;--d:4s;--delay:1.3s;--sz:12px">✧</span>
+    <span class="sp" style="top:44%;left:96%;--d:3.6s;--delay:3.1s;--sz:9px">✦</span>
+    <span class="sp" style="top:22%;left:47%;--d:6s;--delay:2.6s;--sz:8px">✦</span>
+  </div>
 
-  <div class="grid">
+  <main>
 
-    <div class="app-card" onclick="location.href='https://play.google.com/store/apps/details?id=divi.clock'">
-      <img class="app-icon" src="https://play-lh.googleusercontent.com/VFz5lpnZJxOnSALN3f-swoBd2_SlBE43qOG4Lo1KPwn5_NR-5u6MgYGMc_utKrDmL9jxtA7RnVpD2gJ1H2Fk=w240-h480-rw" alt="DiviClock icon">
-      <div class="app-name">DiviClock</div>
-      <div class="app-desc">A cute and simple clock widget for your home screen.<br>Fully customizable: choose your fonts, colors, and text.</div>
-      <div class="badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <p class="site-label">✦ &nbsp;divi apps&nbsp; ✦</p>
+
+    <img class="app-icon" src="diviclock.png" alt="Divi Clock">
+
+    <h1>Divi Clock</h1>
+    <p class="is-back">is back! 💚</p>
+
+    <p class="app-desc">
+      A cute, minimal clock widget for your Android home screen.<br>
+      <strong>100% free — no ads, no trackers, ever.</strong><br>
+      Customize fonts, colors, timezones and more.
+    </p>
+
+    <div class="badges">
+      <span class="badge green">✨ Free</span>
+      <span class="badge pink">🚫 No Ads</span>
+      <span class="badge purple">🎨 Fully Customizable</span>
+      <span class="badge gold">🔤 Custom Fonts</span>
+      <span class="badge">🌍 Multiple Timezones</span>
+    </div>
+
+    <p class="gallery-label">✦ &nbsp;screenshots&nbsp; ✦</p>
+
+    <div class="gallery-wrap">
+      <div class="gallery">
+        <div class="phone"><img src="Screenshot_phone1.jpg" alt="Screenshot 1" loading="lazy"></div>
+        <div class="phone"><img src="Screenshot_phone2.jpg" alt="Screenshot 2" loading="lazy"></div>
+        <div class="phone"><img src="Screenshot_phone3.jpg" alt="Screenshot 3" loading="lazy"></div>
+        <div class="phone"><img src="Screenshot_phone4.jpg" alt="Screenshot 4" loading="lazy"></div>
+      </div>
+    </div>
+    <p class="scroll-hint" aria-hidden="true">← swipe →</p>
+
+    <div class="cta-wrap">
+      <a class="cta" href="https://play.google.com/store/apps/details?id=divi.clock" target="_blank" rel="noopener noreferrer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M3.18 23.76c.37.2.8.2 1.18 0L20.5 14.2a1.5 1.5 0 0 0 0-2.6L4.36 2.04a1 1 0 0 0-1.18 0C2.8 2.3 2.5 2.74 2.5 3.22v17.56c0 .48.3.93.68 1.18z"/>
         </svg>
         Get it on Google Play
-      </div>
+      </a>
     </div>
 
-  </div>
+  </main>
 
-  <footer>made with ♥ by Serena Traversi</footer>
+  <footer>
+    made with ♥ by Serena Traversi &nbsp;·&nbsp; <a href="privacy.html">privacy policy</a>
+  </footer>
 
 </body>
 </html>
