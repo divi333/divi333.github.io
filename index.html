@@ -136,51 +136,77 @@
     /* scroll track */
     .phones-track {
       display: flex;
-      gap: 18px;
+      gap: 0;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      padding: 24px 32px 28px;
       scrollbar-width: none;
-      align-items: flex-end; /* fan: shorter ones appear lower */
+      align-items: center;
       position: relative; z-index: 1;
+      /* padding trick: first/last item center-snaps */
+      padding: 24px 0 28px;
     }
     .phones-track::-webkit-scrollbar { display: none; }
+
+    /* spacers so first/last snap to center */
+    .phones-track::before,
+    .phones-track::after {
+      content: '';
+      flex-shrink: 0;
+      width: calc(50vw - 140px); /* half viewport minus half phone width */
+    }
 
     /* phone frame */
     .phone {
       flex-shrink: 0;
-      /* mobile: big and prominent ~60vw */
-      width: clamp(180px, 58vw, 220px);
-      border-radius: 32px;
+      width: 280px;
+      border-radius: 36px;
       overflow: hidden;
       background: #000;
       scroll-snap-align: center;
       border: 4px solid transparent;
       box-shadow: 0 20px 60px rgba(0,0,0,.22);
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+      transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
       position: relative;
+      margin: 0 10px;
     }
     .phone::before { /* notch */
       content: '';
       position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 46px; height: 11px;
+      width: 52px; height: 12px;
       background: #000;
-      border-radius: 0 0 11px 11px;
+      border-radius: 0 0 12px 12px;
       z-index: 2;
     }
-    .phone:nth-child(1) { border-color: var(--pink);   transform: rotate(-4deg) translateY(10px); }
-    .phone:nth-child(2) { border-color: var(--yellow);  transform: rotate(-1deg) translateY(0);   }
-    .phone:nth-child(3) { border-color: var(--mint);    transform: rotate(2deg)  translateY(6px); }
-    .phone:nth-child(4) { border-color: var(--purple);  transform: rotate(5deg)  translateY(14px); }
-    .phone:hover {
-      transform: translateY(-16px) rotate(0deg) scale(1.05) !important;
-      box-shadow: 0 36px 80px rgba(0,0,0,.28);
-      z-index: 10;
-    }
+    .phone:nth-child(1) { border-color: var(--pink); }
+    .phone:nth-child(2) { border-color: var(--yellow); }
+    .phone:nth-child(3) { border-color: var(--mint); }
+    .phone:nth-child(4) { border-color: var(--purple); }
     .phone img { width: 100%; display: block; }
 
-    /* scroll hint */
+    /* dots indicator */
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 4px 0 8px;
+      position: relative; z-index: 1;
+    }
+    .dot-ind {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      transition: all .25s ease;
+      cursor: pointer;
+      border: none; padding: 0;
+    }
+    .dot-ind.active {
+      width: 24px;
+      border-radius: 4px;
+      background: var(--pink);
+    }
+
+    /* swipe hint — only on mobile */
     .swipe-hint {
       text-align: center;
       font-family: 'Fredoka', sans-serif;
@@ -188,26 +214,41 @@
       font-size: .8rem;
       color: var(--muted);
       letter-spacing: .1em;
-      padding-top: 4px;
+      padding-top: 2px;
       position: relative; z-index: 1;
     }
 
-    /* Desktop: larger container, fan visible, no scroll */
+    /* Desktop: fan layout, no scroll */
     @media (min-width: 640px) {
       .phones-track {
         justify-content: center;
         overflow-x: visible;
         flex-wrap: nowrap;
-        padding: 32px 48px 36px;
+        padding: 40px 48px 44px;
         scroll-snap-type: none;
+        align-items: flex-end;
+        gap: 0;
       }
+      .phones-track::before,
+      .phones-track::after { display: none; }
       .phone {
-        width: 178px;
+        width: 168px;
+        margin: 0 8px;
       }
+      .phone:nth-child(1) { transform: rotate(-4deg) translateY(12px); }
+      .phone:nth-child(2) { transform: rotate(-1deg) translateY(0); }
+      .phone:nth-child(3) { transform: rotate(2deg)  translateY(8px); }
+      .phone:nth-child(4) { transform: rotate(5deg)  translateY(16px); }
+      .phone:hover {
+        transform: translateY(-14px) rotate(0deg) scale(1.05) !important;
+        box-shadow: 0 36px 80px rgba(0,0,0,.28);
+        z-index: 10;
+      }
+      .dots { display: none; }
       .swipe-hint { display: none; }
     }
     @media (min-width: 860px) {
-      .phone { width: 200px; }
+      .phone { width: 190px; }
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -331,7 +372,13 @@
       <div class="phone"><img src="Screenshot_phone3.jpg" alt="Screenshot 3" loading="lazy"></div>
       <div class="phone"><img src="Screenshot_phone4.jpg" alt="Screenshot 4" loading="lazy"></div>
     </div>
-    <p class="swipe-hint">← swipe to explore →</p>
+    <div class="dots" id="dots" aria-hidden="true">
+      <button class="dot-ind active" data-i="0"></button>
+      <button class="dot-ind" data-i="1"></button>
+      <button class="dot-ind" data-i="2"></button>
+      <button class="dot-ind" data-i="3"></button>
+    </div>
+    <p class="swipe-hint">swipe to explore</p>
   </section>
 
   <!-- ── info + cta ───────────────────────────────────────────────────── -->
@@ -356,5 +403,30 @@
     made with ♥ by Serena Traversi &nbsp;·&nbsp; <a href="privacy.html">privacy policy</a>
   </footer>
 
+  <script>
+    const track = document.querySelector('.phones-track');
+    const dotBtns = document.querySelectorAll('.dot-ind');
+    const phones = document.querySelectorAll('.phone');
+
+    // update active dot on scroll
+    track.addEventListener('scroll', () => {
+      const center = track.scrollLeft + track.clientWidth / 2;
+      let closest = 0, minDist = Infinity;
+      phones.forEach((p, i) => {
+        const dist = Math.abs(p.offsetLeft + p.offsetWidth / 2 - center);
+        if (dist < minDist) { minDist = dist; closest = i; }
+      });
+      dotBtns.forEach((d, i) => d.classList.toggle('active', i === closest));
+    }, { passive: true });
+
+    // tap dot → scroll to phone
+    dotBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = +btn.dataset.i;
+        const p = phones[i];
+        track.scrollTo({ left: p.offsetLeft - track.clientWidth / 2 + p.offsetWidth / 2, behavior: 'smooth' });
+      });
+    });
+  </script>
 </body>
 </html>
