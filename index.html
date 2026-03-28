@@ -133,122 +133,70 @@
       bottom: -80px; right: -60px;
     }
 
-    /* scroll track */
-    .phones-track {
+    /* ── stacked cascade ──────────────────────────────────────────────── */
+    .phones-stack {
       display: flex;
-      gap: 0;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
+      flex-direction: column;
       align-items: center;
+      padding: 24px 80px 60px;
       position: relative; z-index: 1;
-      /* padding trick: first/last item center-snaps */
-      padding: 24px 0 28px;
-    }
-    .phones-track::-webkit-scrollbar { display: none; }
-
-    /* spacers so first/last snap to center */
-    .phones-track::before,
-    .phones-track::after {
-      content: '';
-      flex-shrink: 0;
-      width: calc(50vw - 140px); /* half viewport minus half phone width */
     }
 
-    /* phone frame */
     .phone {
-      flex-shrink: 0;
-      width: 280px;
-      border-radius: 36px;
+      width: 230px;
+      border-radius: 34px;
       overflow: hidden;
       background: #000;
-      scroll-snap-align: center;
       border: 4px solid transparent;
-      box-shadow: 0 20px 60px rgba(0,0,0,.22);
-      transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
+      box-shadow: 0 16px 56px rgba(0,0,0,.25);
       position: relative;
-      margin: 0 10px;
+      /* initial hidden state — JS adds .visible */
+      opacity: 0;
+      transition:
+        opacity   .5s ease,
+        transform .6s cubic-bezier(.34,1.4,.64,1),
+        box-shadow .3s ease;
     }
     .phone::before { /* notch */
       content: '';
       position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 52px; height: 12px;
+      width: 50px; height: 11px;
       background: #000;
-      border-radius: 0 0 12px 12px;
+      border-radius: 0 0 11px 11px;
       z-index: 2;
     }
-    .phone:nth-child(1) { border-color: var(--pink); }
-    .phone:nth-child(2) { border-color: var(--yellow); }
-    .phone:nth-child(3) { border-color: var(--mint); }
-    .phone:nth-child(4) { border-color: var(--purple); }
     .phone img { width: 100%; display: block; }
 
-    /* dots indicator */
-    .dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding: 4px 0 8px;
-      position: relative; z-index: 1;
+    /* alternating offsets + rotations — final resting positions */
+    .phone:nth-child(1) { border-color: var(--pink);   --tx: -42px; --rot: -4deg;  --delay: 0s;   z-index: 1; }
+    .phone:nth-child(2) { border-color: var(--yellow); --tx:  38px; --rot:  3deg;  --delay: .12s; z-index: 2; margin-top: -135px; }
+    .phone:nth-child(3) { border-color: var(--mint);   --tx: -32px; --rot: -2.5deg;--delay: .24s; z-index: 3; margin-top: -135px; }
+    .phone:nth-child(4) { border-color: var(--purple); --tx:  40px; --rot:  4deg;  --delay: .36s; z-index: 4; margin-top: -135px; }
+
+    /* hidden → slide in from below */
+    .phone:not(.visible) {
+      transform: translateX(var(--tx)) rotate(var(--rot)) translateY(60px);
     }
-    .dot-ind {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #ccc;
-      transition: all .25s ease;
-      cursor: pointer;
-      border: none; padding: 0;
+    .phone.visible {
+      opacity: 1;
+      transform: translateX(var(--tx)) rotate(var(--rot)) translateY(0);
+      transition-delay: var(--delay);
     }
-    .dot-ind.active {
-      width: 24px;
-      border-radius: 4px;
-      background: var(--pink);
+    .phone:hover {
+      transform: translateX(var(--tx)) rotate(0deg) translateY(-14px) scale(1.04) !important;
+      box-shadow: 0 32px 72px rgba(0,0,0,.32);
+      z-index: 10 !important;
     }
 
-    /* swipe hint — only on mobile */
-    .swipe-hint {
-      text-align: center;
-      font-family: 'Fredoka', sans-serif;
-      font-weight: 600;
-      font-size: .8rem;
-      color: var(--muted);
-      letter-spacing: .1em;
-      padding-top: 2px;
-      position: relative; z-index: 1;
-    }
+    .swipe-hint { display: none; }
 
-    /* Desktop: fan layout, no scroll */
-    @media (min-width: 640px) {
-      .phones-track {
-        justify-content: center;
-        overflow-x: visible;
-        flex-wrap: nowrap;
-        padding: 40px 48px 44px;
-        scroll-snap-type: none;
-        align-items: flex-end;
-        gap: 0;
-      }
-      .phones-track::before,
-      .phones-track::after { display: none; }
-      .phone {
-        width: 168px;
-        margin: 0 8px;
-      }
-      .phone:nth-child(1) { transform: rotate(-4deg) translateY(12px); }
-      .phone:nth-child(2) { transform: rotate(-1deg) translateY(0); }
-      .phone:nth-child(3) { transform: rotate(2deg)  translateY(8px); }
-      .phone:nth-child(4) { transform: rotate(5deg)  translateY(16px); }
-      .phone:hover {
-        transform: translateY(-14px) rotate(0deg) scale(1.05) !important;
-        box-shadow: 0 36px 80px rgba(0,0,0,.28);
-        z-index: 10;
-      }
-      .dots { display: none; }
-      .swipe-hint { display: none; }
-    }
-    @media (min-width: 860px) {
-      .phone { width: 190px; }
+    @media (max-width: 400px) {
+      .phone { width: 200px; }
+      .phone:nth-child(1) { --tx: -30px; }
+      .phone:nth-child(2) { --tx:  26px; }
+      .phone:nth-child(3) { --tx: -22px; }
+      .phone:nth-child(4) { --tx:  28px; }
+      .phones-stack { padding: 20px 50px 50px; }
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -260,7 +208,7 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 44px 24px 0;
+      padding: 10px 24px 28px;
       max-width: 680px;
       margin: 0 auto;
     }
@@ -364,31 +312,27 @@
     </a>
   </div>
 
-  <!-- ── screenshot showcase ──────────────────────────────────────────── -->
-  <section class="showcase" aria-label="Screenshots">
-    <div class="phones-track">
-      <div class="phone"><img src="Screenshot_phone1.jpg" alt="Screenshot 1" loading="eager"></div>
-      <div class="phone"><img src="Screenshot_phone2.jpg" alt="Screenshot 2" loading="lazy"></div>
-      <div class="phone"><img src="Screenshot_phone3.jpg" alt="Screenshot 3" loading="lazy"></div>
-      <div class="phone"><img src="Screenshot_phone4.jpg" alt="Screenshot 4" loading="lazy"></div>
-    </div>
-    <div class="dots" id="dots" aria-hidden="true">
-      <button class="dot-ind active" data-i="0"></button>
-      <button class="dot-ind" data-i="1"></button>
-      <button class="dot-ind" data-i="2"></button>
-      <button class="dot-ind" data-i="3"></button>
-    </div>
-    <p class="swipe-hint">swipe to explore</p>
-  </section>
-
-  <!-- ── info + cta ───────────────────────────────────────────────────── -->
+  <!-- ── description ──────────────────────────────────────────────────── -->
   <div class="info">
     <p class="app-desc">
       A cute minimal clock widget for your Android home screen.<br>
       <strong>100% free — no ads, no trackers, ever. 🎉</strong><br>
       Customize fonts, colors, timezones and more.
     </p>
+  </div>
 
+  <!-- ── screenshot showcase ──────────────────────────────────────────── -->
+  <section class="showcase" aria-label="Screenshots">
+    <div class="phones-stack">
+      <div class="phone"><img src="Screenshot_phone1.jpg" alt="Screenshot 1" loading="eager"></div>
+      <div class="phone"><img src="Screenshot_phone2.jpg" alt="Screenshot 2" loading="lazy"></div>
+      <div class="phone"><img src="Screenshot_phone3.jpg" alt="Screenshot 3" loading="lazy"></div>
+      <div class="phone"><img src="Screenshot_phone4.jpg" alt="Screenshot 4" loading="lazy"></div>
+    </div>
+  </section>
+
+  <!-- ── badges ───────────────────────────────────────────────────────── -->
+  <div class="info">
     <div class="badges">
       <span class="badge b-mint">✨ Free</span>
       <span class="badge b-pink">🚫 No Ads</span>
@@ -396,7 +340,6 @@
       <span class="badge b-yellow">🔤 Custom Fonts</span>
       <span class="badge b-sky">🌍 Timezones</span>
     </div>
-
   </div>
 
   <footer>
@@ -404,29 +347,12 @@
   </footer>
 
   <script>
-    const track = document.querySelector('.phones-track');
-    const dotBtns = document.querySelectorAll('.dot-ind');
+    // Animate phones in as they enter the viewport
     const phones = document.querySelectorAll('.phone');
-
-    // update active dot on scroll
-    track.addEventListener('scroll', () => {
-      const center = track.scrollLeft + track.clientWidth / 2;
-      let closest = 0, minDist = Infinity;
-      phones.forEach((p, i) => {
-        const dist = Math.abs(p.offsetLeft + p.offsetWidth / 2 - center);
-        if (dist < minDist) { minDist = dist; closest = i; }
-      });
-      dotBtns.forEach((d, i) => d.classList.toggle('active', i === closest));
-    }, { passive: true });
-
-    // tap dot → scroll to phone
-    dotBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const i = +btn.dataset.i;
-        const p = phones[i];
-        track.scrollTo({ left: p.offsetLeft - track.clientWidth / 2 + p.offsetWidth / 2, behavior: 'smooth' });
-      });
-    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.15 });
+    phones.forEach(p => observer.observe(p));
   </script>
 </body>
 </html>
