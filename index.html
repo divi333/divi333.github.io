@@ -250,6 +250,10 @@
       align-items: center;
       gap: 12px;
       margin-top: 24px;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      user-select: none;
+      outline: none;
       background: var(--text);
       color: #fff;
       font-family: 'Fredoka', sans-serif;
@@ -264,7 +268,8 @@
       border: 3px solid var(--text);
     }
     .cta:hover  { transform: translate(-3px,-3px); box-shadow: 9px 9px 0 var(--pink); }
-    .cta:active { transform: translate(2px, 2px);  box-shadow: 3px 3px 0 var(--pink); }
+    .cta:active  { transform: translate(2px, 2px);  box-shadow: 3px 3px 0 var(--pink); }
+    .cta:focus, .cta:focus-visible { outline: none; }
 
     /* ── Footer ─────────────────────────────────────────────────────────── */
     footer {
